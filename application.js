@@ -1,4 +1,4 @@
-/* global console, alert, indexDB */
+/* global console, alert, indexedDB */
 (function() {
 
   // 'global' variable to store reference to the database
@@ -11,7 +11,7 @@
   function databaseOpen(callback) {
     // Open a database, specify the name and version
     var version = 1;
-    var request = indexDB.open('todos', version);
+    var request = indexedDB.open('todos', version);
 
     request.onsuccess = function(e) {
       db = e.target.result;
