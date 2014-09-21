@@ -13,6 +13,16 @@
     var version = 1;
     var request = indexedDB.open('todos', version);
 
+    console.log("request: ", request);
+
+    // Run migrations if necessary
+    request.onupgradeneeded = function(e) {
+      console.log("onupgradeneeded triggered");
+      db = e.target.result;
+      e.target.transaction.onerror = databaseError;
+      db.createObjectStore('todo', { keyPath: 'timeStamp' });
+    };
+
     request.onsuccess = function(e) {
       db = e.target.result;
       callback();
