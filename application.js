@@ -33,6 +33,8 @@
   function onSubmit(e) {
     e.preventDefault();
     databaseTodosAdd(input.value, function() {
+      // After new items have been added, re-render all items
+      databaseTodosGet(renderAllTodos);
       input.value = '';
     });
   }
