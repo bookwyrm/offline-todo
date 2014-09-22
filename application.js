@@ -1,4 +1,4 @@
-/* global console, indexedDB, document */
+/* global console, indexedDB, document, IDBKeyRange */
 (function(document) {
 
   // 'global' variable to store reference to the database
@@ -51,9 +51,38 @@
     request.onerror = databaseError;
   }
 
+  function databaseTodosGet(callback) {
+    var transaction = db.transaction(['todo'], 'readonly');
+    var store = transaction.objectStore('todo');
+
+    // Get everything in the store
+    var keyRange = IDBKeyRange.lowerBound(0);
+    var cursorRequest = store.openCursor(keyRange);
+
+    // This fires once per row in the store. So, for simplicity,
+    // collect the data in an array (data), and pass it in the
+    // callback in one go.
+    var data = [];
+    cursorRequest.onsuccess = function(e) {
+      var result = e.target.result;
+
+      // If there's data, add it to array
+      if (result) {
+        data.push(result.value);
+        result.continue();
+      } else {
+        // End of data
+        callback(data);
+      }
+    };
+  }
+
   databaseOpen(function() {
     input = document.querySelector('input');
     document.body.addEventListener('submit', onSubmit);
+    databaseTodosGet(function(todos) {
+      console.log(todos);
+    });
   });
 
 })(document);
