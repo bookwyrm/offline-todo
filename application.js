@@ -1,8 +1,8 @@
-/* global console, alert, indexedDB */
-(function() {
+/* global console, indexedDB, document */
+(function(document) {
 
   // 'global' variable to store reference to the database
-  var db;
+  var db, input;
 
   function databaseError(e) {
     console.error('An IndexDB error has occurred', e);
@@ -30,8 +30,30 @@
     request.onerror = databaseError;
   }
 
+  function onSubmit(e) {
+    e.preventDefault();
+    databaseTodosAdd(input.value, function() {
+      input.value = '';
+    });
+  }
+
+  function databaseTodosAdd(text, callback) {
+    var transaction = db.transaction(['todo'], 'readwrite');
+    var store = transaction.objectStore('todo');
+    var request = store.put({
+      text: text,
+      timeStamp: Date.now()
+    });
+
+    transaction.oncomplete = function() {
+      callback();
+    };
+    request.onerror = databaseError;
+  }
+
   databaseOpen(function() {
-    alert("the database has been opened");
+    input = document.querySelector('input');
+    document.body.addEventListener('submit', onSubmit);
   });
 
-})();
+})(document);
