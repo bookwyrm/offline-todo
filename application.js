@@ -88,13 +88,41 @@
   }
 
   function todoToHtml(todo) {
-    return '<li>' + todo.text + '</li>';
+    return '<li id="' + todo.timeStamp + '">' + todo.text + '</li>';
+  }
+
+  function onClick(e) {
+    // We'll assume that any element with an ID
+    // attribute is a todo item - not recommended in real world
+    if (e.target.hasAttribute('id')) {
+      var deleteCallback = function() {
+        // Refresh the todo list
+        databaseTodosGet(renderAllTodos);
+      };
+
+      // Because the ID is stored in the DOM, it becomes
+      // a string. So we need to make it an integer again.
+      var todo_id = parseInt(e.target.getAttribute('id'), 10);
+
+      databaseTodosDelete(todo_id, deleteCallback);
+    }
+  }
+
+  function databaseTodosDelete(id, callback) {
+    var transaction = db.transaction(['todo'], 'readwrite');
+    var store = transaction.objectStore('todo');
+    var request = store.delete(id);
+    transaction.oncomplete = function() {
+      callback();
+    };
+    request.onerror = databaseError;
   }
 
   databaseOpen(function() {
     input = document.querySelector('input');
     ul = document.querySelector('ul');
     document.body.addEventListener('submit', onSubmit);
+    document.body.addEventListener('click', onClick);
     databaseTodosGet(renderAllTodos);
   });
 
