@@ -2,7 +2,7 @@
 (function(document) {
 
   // 'global' variable to store reference to the database
-  var db, input;
+  var db, input, ul;
 
   function databaseError(e) {
     console.error('An IndexDB error has occurred', e);
@@ -77,12 +77,23 @@
     };
   }
 
+  function renderAllTodos(todos) {
+    var html = '';
+    todos.forEach(function(todo) {
+      html += todoToHtml(todo);
+    });
+    ul.innerHTML = html;
+  }
+
+  function todoToHtml(todo) {
+    return '<li>' + todo.text + '</li>';
+  }
+
   databaseOpen(function() {
     input = document.querySelector('input');
+    ul = document.querySelector('ul');
     document.body.addEventListener('submit', onSubmit);
-    databaseTodosGet(function(todos) {
-      console.log(todos);
-    });
+    databaseTodosGet(renderAllTodos);
   });
 
 })(document);
